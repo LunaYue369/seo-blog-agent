@@ -1,0 +1,14 @@
+{
+    "merchant_id": "summit_hvac",
+    "store_name": "Summit Heating and Cooling",
+    "website": "https://summithvac.example/",
+    "slack_channel": "C0000000002",
+    "industry": "HVAC services",
+    "location": "Mesa Ridge, AZ",
+    "phone": "(555) 010-0233",
+    "email": "office@summithvac.example",
+    "brand_color_primary": "#0a1628",
+    "brand_color_accent": "#2196f3",
+    "blog_style": "professional",
+    "default_post_times": ["09:00", "13:00", "17:00"]
+}

@@ -1,0 +1,14 @@
+slack-bolt>=1.18.0
+slack-sdk>=3.27.0
+openai>=1.30.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+Pillow>=10.0.0
+apscheduler>=3.10.0
+pyyaml>=6.0
+beautifulsoup4>=4.12.0   # eval/deterministic.py 解析 content_html（用 stdlib html.parser 后端，不引 lxml）
+anthropic>=0.40.0        # llm/providers/anthropic_provider.py —— eval 换族裁判（GPT 写稿 / Claude 判稿）
+
+# ── 开发 / CI 用（生产运行不需要）──
+# eval/ 的测试在 CI 里跑 fixture，不需要 API key、不需要联网 —— 所以 CI 一定能绿。
+pytest>=8.0

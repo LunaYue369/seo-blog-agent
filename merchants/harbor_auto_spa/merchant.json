@@ -1,0 +1,15 @@
+{
+    "merchant_id": "harbor_auto_spa",
+    "store_name": "Harbor Auto Spa",
+    "website": "https://harborautospa.example/",
+    "slack_channel": "C0000000001",
+    "industry": "automotive protection and detailing",
+    "location": "Lakeview, CA",
+    "phone": "(555) 010-0147",
+    "email": "hello@harborautospa.example",
+    "brand_color_primary": "#1a1a2e",
+    "brand_color_accent": "#e94560",
+    "blog_style": "premium",
+    "default_post_times": ["09:00", "13:00", "17:00"],
+    "wordpress_url": "https://harborautospa.example"
+}

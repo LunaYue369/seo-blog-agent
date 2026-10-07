@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}} — {{STORE_NAME}}</title>
+    <meta name="description" content="{{EXCERPT}}">
+    <link rel="canonical" href="{{CANONICAL_URL}}">
+    <meta property="og:title" content="{{TITLE}}">
+    <meta property="og:description" content="{{EXCERPT}}">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="{{STORE_NAME}}">
+    <meta property="og:url" content="{{CANONICAL_URL}}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="robots" content="index, follow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- ── JSON-LD Structured Data ────────────────────── -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "{{TITLE}}",
+        "description": "{{EXCERPT}}",
+        "author": {
+            "@type": "Organization",
+            "name": "{{STORE_NAME}}",
+            "url": "{{WEBSITE}}"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{STORE_NAME}}",
+            "url": "{{WEBSITE}}"
+        },
+        "datePublished": "{{DATE_ISO}}",
+        "dateModified": "{{DATE_ISO}}",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{CANONICAL_URL}}"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{WEBSITE}}" },
+            { "@type": "ListItem", "position": 2, "name": "Blog", "item": "{{WEBSITE}}blog/" },
+            { "@type": "ListItem", "position": 3, "name": "{{TITLE}}" }
+        ]
+    }
+    </script>
+
+    <style>
+        /* ── CSS Reset + Base — 杂志风格模板（白色主题） ──── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: {{PRIMARY_COLOR}};
+            --accent: {{ACCENT_COLOR}};
+            --accent-soft: {{ACCENT_COLOR}}15;
+            --bg: #ffffff;
+            --bg-card: #f5f5f7;
+            --bg-glass: rgba(0,0,0,0.02);
+            --text: #1a1a2e;
+            --text-muted: #555566;
+            --text-dim: #999aab;
+            --border: rgba(0,0,0,0.08);
+            --gold: #b8962e;
+            --radius: 12px;
+            --max-w: 820px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            font-size: 17px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Hero — 杂志封面布局：左右分栏 ────────────── */
+        .hero {
+            position: relative;
+            width: 100%;
+            min-height: 560px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+
+        .hero-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 48px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-text::before {
+            content: "";
+            position: absolute;
+            top: 40px;
+            left: 48px;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        .hero-category {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        .hero h1 {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            font-weight: 700;
+            line-height: 1.15;
+            color: var(--text);
+        }
+
+        .hero-excerpt {
+            margin-top: 24px;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 400px;
+        }
+
+        .hero-image-side {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 60%, var(--accent)) 50%, var(--accent) 100%);
+        }
+
+        .hero-photo {
+            position: absolute;
+            inset: 0;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        /* 注意：magazine 版**不需要** scrim —— 标题在左半栏的纯色背景上，
+           不压在照片上，所以照片不用压暗，可以保留全部细节。
+           下面这个 ::before 是原有的左侧羽化，让照片和文字栏之间过渡自然。 */
+        .hero-image-side::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, var(--bg-card) 0%, transparent 30%);
+            z-index: 1;
+        }
+
+        /* ── Article Meta Bar ─────────────────────────── */
+        .article-meta {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .article-meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+        /* ── Table of Contents ─────────────────────────── */
+        .toc {
+            max-width: var(--max-w);
+            margin: 28px auto 0;
+            padding: 24px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .toc-title {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .toc ol { list-style: decimal; padding-left: 20px; margin: 0; }
+        .toc li { margin-bottom: 6px; font-size: 0.92rem; color: var(--text-muted); }
+        .toc a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+        .toc a:hover { color: var(--accent); }
+
+        /* ── Article Body ─────────────────────────────── */
+        .article-wrapper {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .article-body {
+            padding: 56px 0 80px;
+            border-left: 1px solid var(--border);
+            padding-left: 32px;
+            margin-left: 20px;
+        }
+
+        .article-body > p:first-of-type::first-letter {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 3.8rem;
+            font-weight: 700;
+            float: left;
+            line-height: 0.8;
+            margin: 6px 12px 0 0;
+            color: var(--accent);
+        }
+
+        .article-body h2 {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 52px 0 20px;
+            position: relative;
+            padding-left: 20px;
+            scroll-margin-top: 24px;
+        }
+
+        .article-body h2::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 4px;
+            bottom: 4px;
+            width: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .article-body h3 {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 36px 0 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .article-body p { margin-bottom: 20px; color: var(--text-muted); font-size: 1.05rem; }
+        .article-body a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); transition: border-color 0.2s; }
+        .article-body a:hover { border-bottom-style: solid; }
+        .article-body strong { color: var(--text); font-weight: 600; }
+        .article-body ul, .article-body ol { margin: 16px 0 24px 24px; color: var(--text-muted); }
+        .article-body li { margin-bottom: 10px; padding-left: 4px; }
+        .article-body li::marker { color: var(--gold); }
+
+        .article-body blockquote {
+            border: none;
+            background: transparent;
+            text-align: center;
+            padding: 32px 24px;
+            margin: 40px 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--text);
+            position: relative;
+        }
+
+        .article-body blockquote::before {
+            content: "\201C";
+            font-size: 5rem;
+            color: var(--accent);
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.3;
+            line-height: 1;
+        }
+
+        .article-body hr {
+            border: none;
+            height: 1px;
+            background: var(--border);
+            margin: 48px 0;
+            position: relative;
+        }
+
+        .article-body hr::after {
+            content: "◆";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg);
+            padding: 0 16px;
+            color: var(--accent);
+            font-size: 0.7rem;
+        }
+
+        .article-body table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 0.95rem; }
+        .article-body th { background: var(--bg-card); color: var(--gold); font-weight: 700; text-align: left; padding: 14px 16px; border-bottom: 2px solid var(--gold); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; }
+        .article-body td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+        .article-body tr:hover td { background: var(--bg-glass); }
+
+        /* ── Images ───────────────────────────────────── */
+        .blog-image { margin: 40px -32px; overflow: hidden; }
+        .blog-image img { width: 100%; display: block; transition: transform 0.5s ease; }
+        .blog-image:hover img { transform: scale(1.02); }
+
+        /* ── Highlight / Pull Quote ───────────────────── */
+        .blog-highlight {
+            background: linear-gradient(135deg, var(--accent-soft), transparent);
+            border-left: 4px solid var(--accent);
+            border-radius: 0 var(--radius) var(--radius) 0;
+            padding: 24px 28px;
+            margin: 32px 0;
+        }
+
+        .blog-highlight::before {
+            content: "EDITOR'S NOTE";
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        /* ── FAQ Section ──────────────────────────────── */
+        .faq-section {
+            margin: 48px 0 32px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+
+        .faq-section h2 {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.9rem;
+            margin-bottom: 24px;
+            padding-left: 0;
+        }
+
+        .faq-section h2::before { display: none; }
+
+        .faq-item {
+            margin-bottom: 24px;
+            padding: 20px 24px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .faq-item h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 0 0 10px; text-transform: none; letter-spacing: normal; }
+        .faq-item p { margin: 0; color: var(--text-muted); font-size: 1rem; }
+
+        /* ── CTA Section ──────────────────────────────── */
+        .blog-cta {
+            background: var(--bg-card);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 48px 36px;
+            margin: 48px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .blog-cta::before { content: ""; position: absolute; top: -2px; left: 20%; right: 20%; height: 2px; background: var(--gold); }
+        .blog-cta h3 { font-family: 'Inter', system-ui, sans-serif; font-size: 1.7rem; color: var(--text); margin-bottom: 12px; }
+        .blog-cta p { color: var(--text-muted); margin-bottom: 24px; }
+
+        .cta-button {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--accent); color: #fff;
+            font-weight: 700; font-size: 0.9rem; padding: 14px 40px;
+            border-radius: 4px; text-decoration: none;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+
+        /* ── Tags ─────────────────────────────────────── */
+        .tags-section { display: flex; flex-wrap: wrap; gap: 8px; padding: 32px 0; border-top: 1px solid var(--border); margin-top: 48px; }
+        .tag { background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-size: 0.75rem; font-weight: 600; padding: 5px 14px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.08em; transition: border-color 0.2s, color 0.2s; }
+        .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Footer ───────────────────────────────────── */
+        .site-footer { text-align: center; padding: 32px 24px 48px; color: var(--text-dim); font-size: 0.85rem; }
+        .site-footer a { color: var(--accent); text-decoration: none; }
+
+        /* ── Blog Section Cards ────────────────────────── */
+        .blog-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin: 24px 0; transition: border-color 0.3s; }
+        .blog-section:hover { border-color: var(--accent); }
+
+        /* ── Scroll Animations ────────────────────────── */
+        .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── Responsive ──────────────────────────────── */
+        @media (max-width: 768px) {
+            .hero { grid-template-columns: 1fr; min-height: auto; }
+            .hero-text { padding: 40px 24px; }
+            .hero-text::before { left: 24px; }
+            .hero-image-side { height: 280px; }
+            .hero-photo {
+            position: absolute;
+            inset: 0;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        /* 注意：magazine 版**不需要** scrim —— 标题在左半栏的纯色背景上，
+           不压在照片上，所以照片不用压暗，可以保留全部细节。
+           下面这个 ::before 是原有的左侧羽化，让照片和文字栏之间过渡自然。 */
+        .hero-image-side::before { background: linear-gradient(to bottom, var(--bg-card) 0%, transparent 30%); }
+            .article-meta { flex-wrap: wrap; gap: 12px; padding: 16px 20px; }
+            .toc { margin: 20px 16px 0; }
+            .article-body { border-left: none; padding-left: 0; margin-left: 0; }
+            .article-wrapper { padding: 0 20px; }
+            .blog-image { margin: 32px -20px; }
+            .blog-cta { padding: 36px 24px; }
+        }
+
+        /* ── Scrollbar ────────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- ── Hero — 杂志封面：左文右图 ─────────────────────── -->
+    <section class="hero">
+        <div class="hero-text">
+            <div class="hero-category">{{STORE_NAME}}</div>
+            <h1>{{TITLE}}</h1>
+            <p class="hero-excerpt">{{EXCERPT}}</p>
+        </div>
+        <div class="hero-image-side">
+            <!-- 这一栏原本只有品牌渐变（一块纯色），配图完全没用上 ——
+                 现在把配图铺进来；没有配图时 style 为空，退化成原来的渐变。 -->
+            <div class="hero-photo" style="{{HERO_BG_STYLE}}"></div>
+        </div>
+    </section>
+
+    <!-- ── Article Meta ────────────────────────────────── -->
+    <div class="article-meta">
+        <span>✍ {{STORE_NAME}}</span>
+        <span><time datetime="{{DATE_ISO}}">{{DATE_DISPLAY}}</time></span>
+        <span>{{READING_TIME}} min read</span>
+    </div>
+
+    <!-- ── Table of Contents (auto-generated by JS) ────── -->
+    <nav class="toc" id="toc" aria-label="Table of Contents"></nav>
+
+    <!-- ── Article Body ────────────────────────────────── -->
+    <div class="article-wrapper">
+        <article class="article-body">
+            {{CONTENT}}
+
+            <!-- ── Tags ────────────────────────────────── -->
+            <div class="tags-section">
+                {{TAGS}}
+            </div>
+        </article>
+    </div>
+
+    <!-- ── Footer ──────────────────────────────────────── -->
+    <footer class="site-footer">
+        <p>&copy; 2026 <a href="{{WEBSITE}}" target="_blank">{{STORE_NAME}}</a> &mdash; All rights reserved.</p>
+    </footer>
+
+    <!-- ── Scripts ─────────────────────────────────────── -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ── Auto-generate Table of Contents from H2 headings ──
+            const headings = document.querySelectorAll('.article-body h2');
+            const tocNav = document.getElementById('toc');
+            if (headings.length > 1 && tocNav) {
+                let html = '<div class="toc-title">In This Article</div><ol>';
+                headings.forEach((h, i) => {
+                    const id = 'section-' + (i + 1);
+                    h.setAttribute('id', id);
+                    html += `<li><a href="#${id}">${h.textContent}</a></li>`;
+                });
+                html += '</ol>';
+                tocNav.innerHTML = html;
+            } else if (tocNav) {
+                tocNav.style.display = 'none';
+            }
+
+            // ── Scroll fade-up animations ──
+            const targets = document.querySelectorAll(
+                '.article-body h2, .article-body h3, .blog-image, .blog-highlight, .blog-cta, .blog-section, .article-body blockquote, .faq-item'
+            );
+            targets.forEach(el => el.classList.add('fade-up'));
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+            targets.forEach(el => observer.observe(el));
+        });
+    </script>
+
+</body>
+</html>

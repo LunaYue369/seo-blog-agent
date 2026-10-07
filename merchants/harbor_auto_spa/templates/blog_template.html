@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}} — {{STORE_NAME}}</title>
+    <meta name="description" content="{{EXCERPT}}">
+    <link rel="canonical" href="{{CANONICAL_URL}}">
+    <meta property="og:title" content="{{TITLE}}">
+    <meta property="og:description" content="{{EXCERPT}}">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="{{STORE_NAME}}">
+    <meta property="og:url" content="{{CANONICAL_URL}}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="robots" content="index, follow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- ── JSON-LD Structured Data ────────────────────── -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "{{TITLE}}",
+        "description": "{{EXCERPT}}",
+        "author": {
+            "@type": "Organization",
+            "name": "{{STORE_NAME}}",
+            "url": "{{WEBSITE}}"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{STORE_NAME}}",
+            "url": "{{WEBSITE}}"
+        },
+        "datePublished": "{{DATE_ISO}}",
+        "dateModified": "{{DATE_ISO}}",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{CANONICAL_URL}}"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{WEBSITE}}" },
+            { "@type": "ListItem", "position": 2, "name": "Blog", "item": "{{WEBSITE}}blog/" },
+            { "@type": "ListItem", "position": 3, "name": "{{TITLE}}" }
+        ]
+    }
+    </script>
+
+    <style>
+        /* ── CSS Reset + Base ─────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: {{PRIMARY_COLOR}};
+            --accent: {{ACCENT_COLOR}};
+            --accent-glow: {{ACCENT_COLOR}}18;
+            --bg: #ffffff;
+            --bg-card: #f5f5f7;
+            --bg-glass: rgba(0,0,0,0.02);
+            --text: #1a1a2e;
+            --text-muted: #555566;
+            --text-dim: #999aab;
+            --border: rgba(0,0,0,0.08);
+            --radius: 16px;
+            --max-w: 780px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.75;
+            font-size: 17px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Hero Section ─────────────────────────────── */
+        .hero {
+            position: relative;
+            width: 100%;
+            min-height: 520px;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 60%, var(--accent)) 50%, var(--accent) 100%);
+            filter: brightness(0.85);
+            transition: transform 0.6s ease;
+        }
+
+        /* ── hero 照片层 + 遮罩（2026-07-27 加）─────────────────
+           为什么分成三层而不是一条 background 搞定：
+           `background: linear-gradient(...), url('{{HERO_BG_STYLE}}')` 这种写法在
+           **没有配图**时会变成 url('')，那是非法值，浏览器会把整条 background 声明
+           丢掉 —— 连兜底的品牌渐变一起没了，hero 变成一块白。
+           拆成独立图层后，"没图"退化成"这一层是透明的"，兜底渐变永远在。
+
+           scrim 存在的唯一目的是**文字可读性**：配图是 AI 生成的，明暗不可控，
+           没有遮罩的话浅色配图上白色标题会直接消失。两段渐变叠加：
+             第一段 自下而上的黑 —— 文字区（底部/中部）压暗
+             第二段 品牌主色斜向 —— 让照片带上品牌调性，不至于像张随机图片
+
+           ⚠️ 底图**不会**用正文第一张图（见 preview_server 的选图不变式）：
+           同一张照片在第一屏出现两次会像渲染出了 bug。 */
+        .hero-photo {
+            position: absolute;
+            inset: 0;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            /* 轻微放大 + 缓动：鼠标悬停时有呼吸感，纯 CSS 零成本 */
+            transform: scale(1.02);
+            transition: transform 0.8s ease;
+        }
+
+        .hero:hover .hero-photo { transform: scale(1.06); }
+
+        .hero-scrim {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(to top, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.55) 40%, rgba(0, 0, 0, 0.18) 100%),
+                linear-gradient(135deg, color-mix(in srgb, var(--primary) 65%, transparent) 0%, transparent 62%);
+        }
+
+
+        .hero:hover .hero-bg { transform: scale(1.03); }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to top,
+                var(--bg) 0%,
+                rgba(255,255,255,0.85) 30%,
+                rgba(255,255,255,0.3) 60%,
+                transparent 100%
+            );
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 60px 24px 48px;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 800;
+            line-height: 1.15;
+            color: var(--text);
+            max-width: 700px;
+            text-shadow: 0 2px 20px rgba(255,255,255,0.5);
+        }
+
+        .hero-excerpt {
+            margin-top: 18px;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        /* ── Article Meta Bar ─────────────────────────── */
+        .article-meta {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .article-meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+        /* ── Table of Contents ─────────────────────────── */
+        .toc {
+            max-width: var(--max-w);
+            margin: 28px auto 0;
+            padding: 24px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .toc-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .toc ol {
+            list-style: decimal;
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .toc li {
+            margin-bottom: 6px;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+        }
+
+        .toc a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .toc a:hover { color: var(--accent); }
+
+        /* ── Article Body ─────────────────────────────── */
+        .article-wrapper {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .article-body {
+            padding: 48px 0 80px;
+        }
+
+        .article-body h2 {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 48px 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            scroll-margin-top: 24px;
+        }
+
+        .article-body h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 36px 0 14px;
+        }
+
+        .article-body p {
+            margin-bottom: 18px;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .article-body a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body a:hover { border-bottom-color: var(--accent); }
+
+        .article-body strong { color: var(--text); font-weight: 600; }
+
+        .article-body ul, .article-body ol {
+            margin: 16px 0 24px 24px;
+            color: var(--text-muted);
+        }
+
+        .article-body li {
+            margin-bottom: 10px;
+            padding-left: 4px;
+        }
+
+        .article-body li::marker { color: var(--accent); }
+
+        .article-body blockquote {
+            border-left: 3px solid var(--accent);
+            background: var(--bg-card);
+            padding: 20px 24px;
+            margin: 28px 0;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            font-style: italic;
+            color: var(--text);
+        }
+
+        .article-body hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border), transparent);
+            margin: 48px 0;
+        }
+
+        .article-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        .article-body th {
+            background: var(--bg-card);
+            color: var(--accent);
+            font-weight: 600;
+            text-align: left;
+            padding: 14px 16px;
+            border-bottom: 2px solid var(--accent);
+            letter-spacing: 0.03em;
+        }
+
+        .article-body td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .article-body tr:hover td { background: var(--bg-glass); }
+
+        /* ── Images in Article ────────────────────────── */
+        .blog-image {
+            margin: 36px 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+        }
+
+        .blog-image img {
+            width: 100%;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .blog-image:hover img { transform: scale(1.02); }
+
+        /* ── Highlight / Callout Box ──────────────────── */
+        .blog-highlight {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 28px;
+            margin: 32px 0;
+        }
+
+        .blog-highlight::before {
+            content: "KEY TAKEAWAY";
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        /* ── FAQ Section ──────────────────────────────── */
+        .faq-section {
+            margin: 48px 0 32px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+
+        .faq-section h2 {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 24px;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            padding: 20px 24px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .faq-item h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0 0 10px;
+        }
+
+        .faq-item p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* ── CTA Section ──────────────────────────────── */
+        .blog-cta {
+            background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--accent), var(--primary) 50%));
+            border-radius: var(--radius);
+            padding: 48px 36px;
+            margin: 48px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-cta::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 50%, var(--accent-glow), transparent 70%);
+            opacity: 0.5;
+        }
+
+        .blog-cta h3 {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .blog-cta p {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 14px 36px;
+            border-radius: 100px;
+            text-decoration: none;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        /* ── Tags ─────────────────────────────────────── */
+        .tags-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 48px;
+        }
+
+        .tag {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 6px 16px;
+            border-radius: 100px;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ── Footer ───────────────────────────────────── */
+        .site-footer {
+            text-align: center;
+            padding: 32px 24px 48px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .site-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* ── Scroll Animations ────────────────────────── */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Responsive ───────────────────────────────── */
+        @media (max-width: 768px) {
+            .hero { min-height: 400px; }
+            .hero h1 { font-size: 1.8rem; }
+            .hero-content { padding: 40px 20px 32px; }
+            .article-meta { flex-wrap: wrap; gap: 12px; padding: 16px 20px; }
+            .toc { margin: 20px 16px 0; }
+            .article-body { padding: 32px 0 60px; }
+            .article-body h2 { font-size: 1.4rem; }
+            .blog-cta { padding: 36px 24px; }
+            .blog-highlight { padding: 20px; }
+        }
+
+        /* ── Scrollbar ────────────────────────────────── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+        /* ── Blog Section Cards ────────────────────────── */
+        .blog-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin: 24px 0;
+            transition: border-color 0.3s;
+        }
+
+        .blog-section:hover { border-color: rgba(0,0,0,0.15); }
+    </style>
+</head>
+<body>
+
+    <!-- ── Hero Banner ─────────────────────────────────── -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <!-- 照片层：style 由 preview_server 注入；没有配图时为空 style → 只剩下面的品牌渐变 -->
+        <div class="hero-photo" style="{{HERO_BG_STYLE}}"></div>
+        <div class="hero-scrim"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge">{{STORE_NAME}} Blog</div>
+            <h1>{{TITLE}}</h1>
+            <p class="hero-excerpt">{{EXCERPT}}</p>
+        </div>
+    </section>
+
+    <!-- ── Article Meta ────────────────────────────────── -->
+    <div class="article-meta">
+        <span>✍ {{STORE_NAME}}</span>
+        <span><time datetime="{{DATE_ISO}}">{{DATE_DISPLAY}}</time></span>
+        <span>{{READING_TIME}} min read</span>
+    </div>
+
+    <!-- ── Table of Contents (auto-generated by JS) ────── -->
+    <nav class="toc" id="toc" aria-label="Table of Contents"></nav>
+
+    <!-- ── Article Body ────────────────────────────────── -->
+    <div class="article-wrapper">
+        <article class="article-body">
+            {{CONTENT}}
+
+            <!-- ── Tags ────────────────────────────────── -->
+            <div class="tags-section">
+                {{TAGS}}
+            </div>
+        </article>
+    </div>
+
+    <!-- ── Footer ──────────────────────────────────────── -->
+    <footer class="site-footer">
+        <p>&copy; 2026 <a href="{{WEBSITE}}" target="_blank">{{STORE_NAME}}</a> &mdash; All rights reserved.</p>
+    </footer>
+
+    <!-- ── Scripts ─────────────────────────────────────── -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ── Auto-generate Table of Contents from H2 headings ──
+            const headings = document.querySelectorAll('.article-body h2');
+            const tocNav = document.getElementById('toc');
+            if (headings.length > 1 && tocNav) {
+                let html = '<div class="toc-title">In This Article</div><ol>';
+                headings.forEach((h, i) => {
+                    const id = 'section-' + (i + 1);
+                    h.setAttribute('id', id);
+                    html += `<li><a href="#${id}">${h.textContent}</a></li>`;
+                });
+                html += '</ol>';
+                tocNav.innerHTML = html;
+            } else if (tocNav) {
+                tocNav.style.display = 'none';
+            }
+
+            // ── Scroll fade-up animations ──
+            const targets = document.querySelectorAll(
+                '.article-body h2, .article-body h3, .blog-image, .blog-highlight, .blog-cta, .blog-section, .article-body blockquote, .faq-item'
+            );
+            targets.forEach(el => el.classList.add('fade-up'));
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+            targets.forEach(el => observer.observe(el));
+        });
+    </script>
+
+</body>
+</html>
